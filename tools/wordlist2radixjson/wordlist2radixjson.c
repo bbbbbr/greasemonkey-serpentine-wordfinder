@@ -19,7 +19,6 @@ int main( int argc, char *argv[] )
 {
     if( argc == 2 )
     {
-//        printf("Opening file: %s\n", argv[1]);
         process_file(argv[1]);
     }
     else if( argc > 2 )
@@ -29,6 +28,7 @@ int main( int argc, char *argv[] )
     else
     {
         printf("Filename argument expected\n");
+        printf("Usage for piping out to a file: wordlist2radixjson <infile> > outfile\n");
     }
 
     return 0;
@@ -50,12 +50,6 @@ void process_file(char *strFilename)
             trim_newline(strWord);
             szWordLen = strlen(strWord);
 
-/*
-            // Debug
-            if ((wordCount %10000) == 0)
-                printf("...%s", strWord);
-*/
-
             if (szWordLen >= WORD_MIN_LEN)
             {
                 insert_node(strWord);
@@ -64,25 +58,14 @@ void process_file(char *strFilename)
             }
         }
 
-//        printf("\n");
         fclose(pWordFile);
         free(strWord);
 
-/*
-        // Testing
-        printf("Words added: %zu\n",wordCount);
-        printf("Searched value: %d\n",search("aa"));
-        printf("Searched value: %d\n",search("aah"));
-        printf("Searched value: %d\n",search("aahing"));
-        printf("Searched value: %d\n",search("abraision"));
-        printf("Searched value: %d\n",search("test"));
-*/
         tree_export_to_json();
-
     }
     else
     {
-        printf("Error: Failed to open file\n");
+        printf("Error: Failed to open input file\n");
     }
 }
 
@@ -97,12 +80,12 @@ void trim_newline(char *strWord)
 
 
 
-
-
 // Radix Tree/Trie linked list code from :
 // http://programminggeeks.com/c-code-for-radix-tree-or-trie/
 //
-// * Added parent linkage
+// * Added parent node linkage
+// * Added has_children convenience indicator
+
 
 struct node; // Forward Declaration
 
@@ -113,6 +96,7 @@ typedef struct node {
     struct node * parent;
     unsigned char has_children;
 } node;
+
 
 node * root = NULL;
 
@@ -204,7 +188,9 @@ var wordlist = {
 };
 */
 
-
+//
+// Uses recursion to walk the word list node tree and export it in json format
+//
 void node_export(node * q, unsigned char depth)
 {
     int x,c;
@@ -213,7 +199,7 @@ void node_export(node * q, unsigned char depth)
 
     for (x = 0; x < ALPHABET_SIZE; x++)
     {
-        // Explore the child link if present --> (this could be removed by testing for has_children at the start of the recursion)
+        // Explore each child link if present
         if (q->link[x] != NULL)
         {
             child = q->link[x];
@@ -221,47 +207,37 @@ void node_export(node * q, unsigned char depth)
             // If the node has children or completes a word (could be a terminal node), then print it
             if ((child->has_children) || (child->data > -1))
             {
-
-//format                for (c = 0; c < depth; c++) printf(" "); // Indenting
-
                 // If there are multiple elements in this node then a comma seperator is required
                 elementCount++;
+
                 if (elementCount > 1)
                     printf(",");
 
+
                 // Print node letter and opening content bracket
                 printf("\"%c\": {", ('a' + x));
-//format                printf("\n");
 
-                    // Indicate if it completes a word in the dictionary
-                    if (child->data > -1)
-                    {
-//format                        for (c = 0; c < (depth + 1); c++) printf(" "); // Indenting
+                // Indicate if it completes a word in the dictionary
+                if (child->data > -1)
+                {
+                    printf("\"iw\": 1"); // * %d", child->data);
 
-//format                        printf("\"isword\": 1"); // * %d", child->data);
-                        printf("\"iw\": 1"); // * %d", child->data);
-
-                        // Comma separator if needed
-                        if (child->has_children)
-                            printf(",");
-
-//format                        printf("\n");
-                    }
-
-                    // Handle children of this node if any are present
+                    // Comma separator if needed
                     if (child->has_children)
-                        node_export(child, depth + 1);
+                        printf(",");
+                }
+
+                // Handle children of this node if any are present
+                if (child->has_children)
+                    node_export(child, depth + 1);
 
                 // Close out the node
-//format                for (c = 0; c < depth; c++) printf(" "); // Indenting
                 printf("}");
-//format                printf("\n");
             } // End : if ((child->has_children) || (child->data > -1))
         } // End : if (q->link[x] != NULL)
     } // End : for (x = 0; x < ALPHABET_SIZE; x++)
 
 } // End : node_export()
-
 
 
 
@@ -271,20 +247,15 @@ void tree_export_to_json()
     //node * child;
     int x;
 
-    int c,indent = 0;
+    int c, indent = 0;
 
     // Start json structure
-//    printf("var wordlist = ");
     printf("{\n");
 
-    // Export the tree
+    // Export the tree, starting with the root node and depth "0"
     node_export(root,0);
 
     // Close json structure
     printf("}\n");
-//    printf(";\n");
-
 }
-
-// ----------------------------------------------------------------------
 
