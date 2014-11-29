@@ -5,23 +5,31 @@
 // Generates usage heat map for board tiles based on words found
 
 
+
 //
 // ================= VARS =================
 //
 
+// Arrays used to record tile-in-word/etc usage statistics for each tile on the board
 var boardTileStatWordUsedCount  = [];
 var boardTileStatStartWordCount = [];
 var boardTileStatEndWordCount   = [];
+
+// Helper vars to simplify post-board scan display processing. Each stores the value of the most-used tile for the matching array
 var boardTileStatWordUsedCountMaxVal;
 var boardTileStatStartWordCountMaxVal;
 var boardTileStatEndWordCountMaxVal;
 
 
 
-
+//
 // ================= UI =================
+//
 
 
+//
+// Creates buttns in the UI for displaying the various heat maps
+//
 function CreateHeatMapLinks()
 {
     appendLink('HM: Used Tiles', 'grey',
@@ -48,8 +56,9 @@ function CreateHeatMapLinks()
 
 
 
-
+//
 // ================= INIT AND DATA LOGGING =================
+//
 
 
 //
@@ -125,7 +134,9 @@ function heatMapIncrementUsedTiles(wordLength)
 
 
 
+//
 // ================= DISPLAY FUNCTIONS =================
+//
 
 
 //

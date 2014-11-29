@@ -9,8 +9,9 @@
 // @grant       GM_getResourceText
 // @version     0.4.0
 // @license     GPL
-// @require     word-finder-heatmap.js
 // @require     dom-utils.js
+// @require     word-finder-heatmap.js
+// @require     word-finder-wordlookup.js
 // @resource    resWordTreeJson resource/wordtreejsonEnable172k.js
 // ==/UserScript==
 
@@ -115,158 +116,6 @@ function stopSendingWords()
     continueSendingWords = false;
     setStatusItemState('statusSendWords','init');
 }
-
-
-function resetFoundWordList()
-{
-    foundWords     = {};
-    foundWordCount = 0;
-}
-
-
-function checkAdjacentTiles(cx, cy, wordTreeNode, tileLetter, strWorkString, wordLen)
-{
-    var x,y;
-
-   // Now check all adjacent tiles, including diagonals
-    for (x = cx - 1; x <= cx + 1; x++) {
-        for (y = cy - 1; y <= cy + 1; y++) {
-            // Make sure to stay within board boundaries
-            if ((x >= 0) && (x < boardTiles.length) && (y >= 0) && (y < boardTiles[x].length)) {
-                // Don't use tiles which are currently occupied
-                if (boardTileUsed[x][y] == 0) {
-                    // Feed in :
-                    // * offset from current working tile (x,y)
-                    // * child node by-letter of of the current radix/trie word tree
-                    // * current word length
-                    // * current working string
-                    if (wordTreeNode[ tileLetter ])  // TODO : is checking for the child here redundant?
-                        checkBoardTile(x, y, wordTreeNode[ tileLetter ], wordLen, strWorkString);
-                }
-            }
-        }
-    }
-}
-
-
-function checkLetterInWordTree(cx, cy, wordTreeNode, tileLetter, strWorkString, wordLen)
-{
-    // Is the current letter present at the current location in the word tree?
-    if ( wordTreeNode.hasOwnProperty( tileLetter ) ) {
-
-        // Append current tile letter to the working string
-        strWorkString = strWorkString + tileLetter;
-
-        // Check to see if the current string of letters forms a valid word
-        if ( wordTreeNode[ tileLetter ]['iw'] ) {
-
-            if (wordLen >= wordMinLength) {
-                if (foundWords.hasOwnProperty(strWorkString) == false) {
-
-                    // TODO : move this into a function
-                    // Add the word to the list
-                    foundWords[strWorkString] = true;
-                    foundWordCount++;
-
-                    // Frivolous heat mapping
-                    heatMapIncrementUsedTiles(wordLen);
-                }
-            }
-        }
-
-        // Now check all adjacent tiles, including diagonals
-        checkAdjacentTiles(cx, cy, wordTreeNode, tileLetter, strWorkString, wordLen);
-    }
-
-}
-
-
-//
-// Checks a board tile at a given location for words - uses recursion
-//
-function checkBoardTile(cx, cy, wordTreeNode, wordLen, strWorkString)
-{
-    var tileLetter
-
-    wordLen++;
-    if (wordLen > maxWordLen) return;
-
-    // Flag current tile as occupied
-    boardTileUsed[cx][cy] = wordLen;
-
-    // Read letter for current tile
-    tileLetter = boardTiles[cx][cy];
-
-    // Special handling for 'qu' tiles (the only tile with two letters)
-    if (tileLetter == 'qu')
-    {
-        // If 'q' is a valid entry in word tree at this location then step past it and test with 'u'
-        if ( wordTreeNode.hasOwnProperty( 'q' ) )
-        {
-            // Advance past 'q' to the letter 'u' in the word tree, append it to the working string, and check for words using 'u'
-            checkLetterInWordTree(cx, cy, wordTreeNode[ 'q' ], 'u', strWorkString + 'q', wordLen + 1);
-        }
-
-        // Now drop through and handle 'q' as a singular letter without the trailing 'u'
-        tileLetter = 'q';
-    }
-
-    // Test letter and explore further tiles and words if possible
-    checkLetterInWordTree(cx, cy, wordTreeNode, tileLetter, strWorkString, wordLen);
-
-
-    // Release tile for use
-    boardTileUsed[cx][cy] = 0;
-}
-
-
-//
-// Scans each tile on the board for words
-// * extractBoardToArray() must be called first
-//
-function findWordsOnBoard()
-{
-    var x,y;
-    resetFoundWordList();
-    heatMapReset();
-
-    // Make sure a dictionary is loaded
-    if (wordTree != null) {
-        for (x = 0; x < boardTiles.length; x++) {
-            for (y = 0; y < boardTiles[x].length; y++) {
-
-                // Feed in :
-                // * current tile (x,y)
-                // * root node of the radix/trie word tree
-                // * word length 0
-                // * blank working string
-                checkBoardTile(x, y, wordTree, 0, "");
-            }
-        }
-    }
-
-    // DEBUG : dump list of words
-    for (var wordEntry in foundWords) {
-        // use hasOwnProperty to filter out keys from the Object.prototype
-        if (foundWords.hasOwnProperty( wordEntry )) {
-            console.debug(wordEntry);
-        }
-    }
-    console.debug("Found Words : " + foundWordCount.toString() );
-
-    if (foundWordCount > 0)
-    {
-        setStatusItemState('statusWords','success');
-        return (true);
-    }
-    else
-    {
-        setStatusItemState('statusWords','error');
-        return (false);
-    }
-
-}
-
 
 
 
@@ -437,21 +286,6 @@ function installBoardUpdateHook()
 
 
 
-function wordListLoad()
-{
-    wordTree = JSON.parse(GM_getResourceText("resWordTreeJson"));
-
-    if (wordTree)
-    {
-        console.debug("Dictionary loaded");
-        return (true);
-    }
-    else
-    {
-        console.debug("Dictionary failed to load! Make sure the script header resource is correct");
-        return (false);
-    }
-}
 
 
 function appendLink(linkText, linkColor, appendAfterNode, linkFunction)
@@ -475,21 +309,15 @@ function appendLink(linkText, linkColor, appendAfterNode, linkFunction)
 
 
 
-
+// Settings
 var boardArraySize = 10;
-var boardTiles     = [];
-var boardTileUsed  = [];
-var boardWidth     = -1;
-var boardHeight    = -1;
-
 var wordMinLength  = 4;
 var maxWordLen     = 20;
 
-var foundWords     = {}; // TODO ? : = new Object();
-var foundWordCount = 0;
+
 
 var boardNeedsUpdate = true; // TODO : remove?
-var wordTree         = null;
+
 
 var msWaitBetweenWordSendsToGame = 500;// 125 for bot table; // 500; // Half sec average time between sending to game
 var continueSendingWords         = false;
