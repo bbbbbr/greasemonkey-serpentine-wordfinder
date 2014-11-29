@@ -181,7 +181,6 @@ function installBoardUpdateHook()
                         // TODO : check time and don't start if it's less than N (30?) seconds
                         // TODO : adjust word sending inverval based on number of words found and total time available (but not less than XXX)
                         // The room has entered active gameplay, TODO : move to function
-                        boardNeedsUpdate = true;
                         if (extractBoardToArray())
                             if (findWordsOnBoard())
                                 startSendingWords();

@@ -13,8 +13,6 @@ var boardTiles     = [];   // Stores the letter used for each tile on the board
 var boardWidth     = -1;   // Record keeping for how large the current board is (width & height)
 var boardHeight    = -1;
 
-var boardNeedsUpdate = true; // TODO : remove?
-
 
 
 //
@@ -77,8 +75,6 @@ function extractBoardToArray()
                 }
             }
         }
-
-        boardNeedsUpdate = false;
 
         // DEBUG - dump to console
         var strBoardText = "";
