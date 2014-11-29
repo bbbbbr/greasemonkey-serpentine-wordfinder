@@ -136,7 +136,7 @@ function initHeatMapArea()
 
     // Heat Map buttons
     appendStatusItem('wordFinderHeatMapArea', 'heatmapLabel','HeatMap :', null);
-    setStatusItemState('heatmapLabel','success');
+    setStatusItemState('heatmapLabel','label');
 
     appendStatusItem('heatmapLabel', 'heatmapUsedTiles', 'Used',  heatMapDrawUsedTiles);
     setStatusItemState('heatmapUsedTiles','success');
@@ -153,29 +153,6 @@ function initHeatMapArea()
 //
 // ================= UI HELPERS =================
 //
-
-
-// TODO : remove?
-//
-// Appends an anchor link (text, color, onClick handler function) to an element
-//
-function appendLink(linkText, linkColor, appendAfterNode, linkFunction)
-{
-    if (appendAfterNode)
-    {
-        // Create link to find words on the board
-        var Link             = document.createElement('a');
-            Link.href        = '#';
-            Link.style.color = linkColor;
-            Link.onclick     = linkFunction;
-
-        Link.appendChild( document.createTextNode(linkText) );
-
-        // Append the link
-        appendAfterNode.parentNode.appendChild(document.createElement('br'));
-        appendAfterNode.parentNode.appendChild(Link);
-    }
-}
 
 
 //
@@ -239,6 +216,12 @@ function setStatusItemState(itemID, itemStatus)
             elItem.style.color           = "white";
             elItem.style.borderColor     = "lightcoral";
             elItem.style.backgroundColor = "lightcoral";
+        }
+        else if (itemStatus == "label")
+        {
+            elItem.style.color           = "darkgrey";
+            elItem.style.borderColor     = "transparent";
+            elItem.style.backgroundColor = "transparent";
         }
     }
 }
