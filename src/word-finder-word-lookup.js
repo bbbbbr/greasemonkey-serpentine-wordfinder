@@ -1,5 +1,5 @@
 //
-// word-finder-wordlookup.js
+// word-finder-word-lookup.js
 //
 //
 // Loads word trie/radix tree, scans board and builds list of found words
@@ -12,11 +12,7 @@
 
 var wordTree       = null; // The word trie/radix tree dictionary gets loaded into this var
 
-var boardTiles     = [];   // Stores the letter used for each tile on the board
 var boardTileUsed  = [];   // Temporarily flags a given tile as used/available when building a word across the board
-var boardWidth     = -1;   // Record keeping for how large the current board is (width & height)
-var boardHeight    = -1;
-
 
 var foundWords     = {};   // Hash of words found for the given board (using a hash easily removes dupes) // TODO ? : = new Object();
 var foundWordCount = 0;    // Stores the total number of words found for the given board
