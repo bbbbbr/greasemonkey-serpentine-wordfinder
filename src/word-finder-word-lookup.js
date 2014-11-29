@@ -65,11 +65,37 @@ function resetFoundWordList()
 
 
 // findWordsOnBoard()
-//   -> checkBoardTile()
-//      ^ -> checkLetterInWordTree() <--- TODO : Refactor
-//      |    -> checkAdjacentTiles() <---
-//      |                   |
-//      +---< recursion <---+
+//   |
+//   +--> checkBoardTile()
+//        ^   |
+//        |   +--> checkLetterInWordTree() --> addWordToFoundList()
+//        |   |
+//        |   +--> checkAdjacentTiles()
+//        |                 |
+//        +--< recursion <--+
+
+
+function addWordToFoundList(strWorkString, wordLen)
+{
+    // Make sure the word meets the minimum length requirement for this room/board in the game
+    if (wordLen >= wordMinLength)
+    {
+        // Make sure the word doesn't already have an entry in the hash list
+        if (foundWords.hasOwnProperty(strWorkString) == false)
+        {
+            // Add the word to the list of found words hash via creating a property/value pair
+            foundWords[strWorkString] = true;
+            foundWordCount++;
+
+            // Log the word for heat mapping use (will sample the current board usage)
+            heatMapIncrementUsedTiles(wordLen);
+
+            return (true); // Success : word added to the list
+        }
+    }
+
+    return (false); // Failed : word was not added
+}
 
 //
 // Check all of the adjacent tiles (including diagonals) to see if
@@ -79,7 +105,10 @@ function checkAdjacentTiles(cx, cy, wordTreeNode, tileLetter, strWorkString, wor
 {
     var x,y;
 
-   // Now check all adjacent tiles, including diagonals
+    // Append the new tile letter to the currently built word
+    strWorkString = strWorkString + tileLetter;
+
+    // Now check all adjacent tiles, including diagonals
     for (x = cx - 1; x <= cx + 1; x++) {
         for (y = cy - 1; y <= cy + 1; y++) {
             // Make sure to stay within board boundaries
@@ -91,7 +120,7 @@ function checkAdjacentTiles(cx, cy, wordTreeNode, tileLetter, strWorkString, wor
                     // * child node by-letter of of the current radix/trie word tree
                     // * current word length
                     // * current working string
-                    if (wordTreeNode[ tileLetter ])  // TODO : is checking for the child here redundant?
+                    if (wordTreeNode[ tileLetter ])
                         checkBoardTile(x, y, wordTreeNode[ tileLetter ], wordLen, strWorkString);
                 }
             }
@@ -103,35 +132,25 @@ function checkAdjacentTiles(cx, cy, wordTreeNode, tileLetter, strWorkString, wor
 //
 // Check to see if the letter for the current tile and letter-in-word position is part of a valid word
 //
-function checkLetterInWordTree(cx, cy, wordTreeNode, tileLetter, strWorkString, wordLen)
+function checkLetterInWordTree(wordTreeNode, tileLetter, strWorkString, wordLen)
 {
-    // Is the current letter present at the current location in the word tree?
-    if ( wordTreeNode.hasOwnProperty( tileLetter ) ) {
+    var isLetterPartOfWord = false;
 
+    // Is the current letter present at the current location in the word tree?
+    if ( wordTreeNode.hasOwnProperty( tileLetter ) )
+    {
         // Append current tile letter to the working string
         strWorkString = strWorkString + tileLetter;
 
-        // Check to see if the current string of letters forms a valid word
-        if ( wordTreeNode[ tileLetter ]['iw'] ) {
+        // indicate success, letter at this location is part of a valid word
+        isLetterPartOfWord = true;
 
-            if (wordLen >= wordMinLength) {
-                if (foundWords.hasOwnProperty(strWorkString) == false) {
-
-                    // TODO : move this into a function
-                    // Add the word to the list
-                    foundWords[strWorkString] = true;
-                    foundWordCount++;
-
-                    // Frivolous heat mapping
-                    heatMapIncrementUsedTiles(wordLen);
-                }
-            }
-        }
-
-        // Now check all adjacent tiles, including diagonals
-        checkAdjacentTiles(cx, cy, wordTreeNode, tileLetter, strWorkString, wordLen);
+        // Check to see if the current string of letters is the last letter which completes a valid word
+        if ( wordTreeNode[ tileLetter ]['iw'] )
+            addWordToFoundList(strWorkString, wordLen);
     }
 
+    return (isLetterPartOfWord);
 }
 
 
@@ -158,7 +177,11 @@ function checkBoardTile(cx, cy, wordTreeNode, wordLen, strWorkString)
         if ( wordTreeNode.hasOwnProperty( 'q' ) )
         {
             // Advance past 'q' to the letter 'u' in the word tree, append it to the working string, and check for words using 'u'
-            checkLetterInWordTree(cx, cy, wordTreeNode[ 'q' ], 'u', strWorkString + 'q', wordLen + 1);
+            if ( checkLetterInWordTree(wordTreeNode[ 'q' ], 'u', strWorkString + 'q', wordLen + 1) )
+            {
+                // Now check all adjacent tiles, including diagonals
+                checkAdjacentTiles(cx, cy, wordTreeNode[ 'q' ], 'u', strWorkString + 'q', wordLen + 1);
+            }
         }
 
         // Now drop through and handle 'q' as a singular letter without the trailing 'u'
@@ -166,10 +189,14 @@ function checkBoardTile(cx, cy, wordTreeNode, wordLen, strWorkString)
     }
 
     // Test letter and explore further tiles and words if possible
-    checkLetterInWordTree(cx, cy, wordTreeNode, tileLetter, strWorkString, wordLen);
+    if ( checkLetterInWordTree(wordTreeNode, tileLetter, strWorkString, wordLen) )
+    {
+        // Now check all adjacent tiles, including diagonals
+        checkAdjacentTiles(cx, cy, wordTreeNode, tileLetter, strWorkString, wordLen);
+    }
 
 
-    // Release tile for use
+    // Release tile for use again
     boardTileUsed[cx][cy] = 0;
 }
 
