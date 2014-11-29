@@ -9,6 +9,8 @@
 // @grant       GM_getResourceText
 // @version     0.4.0
 // @license     GPL
+// @require     word-finder-heatmap.js
+// @require     dom-utils.js
 // @resource    resWordTreeJson resource/wordtreejsonEnable172k.js
 // ==/UserScript==
 
@@ -27,138 +29,6 @@
 * OPTIONAL : monitor chat area for commands (enable/disable/set-speed)
 */
 
-
-// ============================= END HEAT MAP SECTION =============================
-
-// Heat Map : Reset array and counters for collecting tile usage data
-function heatMapReset()
-{
-    var x,y;
-    // Initializes/clears 2D array for storing board tiles
-    // TODO : pass in params instead of globalizing them
-    for(x = 0; x < boardArraySize; x++) {
-        boardTileStatWordUsedCount[x]  = [];
-        boardTileStatStartWordCount[x] = [];
-        boardTileStatEndWordCount[x]   = [];
-    }
-
-    // Zero out the array
-    for (x = 0; x < boardTiles.length; x++) {
-        for (y = 0; y < boardTiles[x].length; y++) {
-            boardTileStatWordUsedCount[x][y]  = 0;
-            boardTileStatStartWordCount[x][y] = 0;
-            boardTileStatEndWordCount[x][y]   = 0;
-        }
-    }
-
-    boardTileStatWordUsedCountMaxVal  = 0;
-    boardTileStatStartWordCountMaxVal = 0;
-    boardTileStatEndWordCountMaxVal   = 0;
-}
-
-
-// Heat Map : update the heat map with set of tiles used for a word
-function heatMapIncrementUsedTiles(wordLength)
-{
-    var x,y;
-    var tempColor, redVal, greenVal, blueVal;
-
-    for (x = 0; x < boardTiles.length; x++)
-    {
-        for (y = 0; y < boardTiles[x].length; y++)
-        {
-            // Update the basic tile usage count
-            if (boardTileUsed[x][y] > 0)
-            {
-                boardTileStatWordUsedCount[x][y]++;
-
-                if (boardTileStatWordUsedCount[x][y] > boardTileStatWordUsedCountMaxVal)
-                    boardTileStatWordUsedCountMaxVal = boardTileStatWordUsedCount[x][y];
-            }
-
-            // Update the start-of-word tile count
-            if (boardTileUsed[x][y] == 1)
-            {
-                boardTileStatStartWordCount[x][y]++;
-
-                if (boardTileStatStartWordCount[x][y] > boardTileStatStartWordCountMaxVal)
-                    boardTileStatStartWordCountMaxVal = boardTileStatStartWordCount[x][y];
-            }
-
-            // Update the start-of-word tile count
-            if (boardTileUsed[x][y] == wordLength)
-            {
-                boardTileStatEndWordCount[x][y]++;
-
-               if (boardTileStatEndWordCount[x][y] > boardTileStatEndWordCountMaxVal)
-                    boardTileStatEndWordCountMaxVal = boardTileStatEndWordCount[x][y];
-            }
-        } // END : for (y ...
-    } // END : for (x ...
-}
-
-
-function heatMapDrawUsedTiles()
-{
-    heatMapDrawToBoard(boardTileStatWordUsedCount, boardTileStatWordUsedCountMaxVal);
-}
-
-
-function heatMapDrawStartTiles()
-{
-    heatMapDrawToBoard(boardTileStatStartWordCount, boardTileStatStartWordCountMaxVal);
-}
-
-
-function heatMapDrawEndTiles()
-{
-    heatMapDrawToBoard(boardTileStatEndWordCount, boardTileStatEndWordCountMaxVal);
-}
-
-
-// Heat Map : Update the tiles on the board to represent the tile usage heat map
-function heatMapDrawToBoard(tileStatArray, maxVal)
-{
-    var x,y;
-    var tempColor, redVal, greenVal, blueVal;
-
-    // Now update the board tile background color based on tile usage in the supplied array
-    for (x = 0; x < tileStatArray.length; x++)
-    {
-        for (y = 0; y < tileStatArray[x].length; y++)
-        {
-            if (tileStatArray[x][y] > 0)
-            {
-                redVal   = 0;
-                greenVal = 0   + Math.floor( tileStatArray[x][y] / (maxVal / 256) );
-                blueVal  = 255 - Math.floor( tileStatArray[x][y] / (maxVal / 256) );
-
-                tempColor = "rgb(" + redVal.toString() + ", " + greenVal.toString() + ", " + blueVal.toString() + ")";
-            }
-            else
-            {
-                tempColor = "rgb(0,0,0)";
-            }
-
-            // Update the tile color - must use setProperty instead of .style.backgroundColor in order to use CSS !imporant color override
-            document.querySelector("#board_" + x.toString() + "_" + y.toString()).style.setProperty("background-color", tempColor, "important");
-        }
-    }
-}
-
-
-// ============================= END HEAT MAP SECTION =============================
-
-
-function eventFire(el, etype){
-  if (el.fireEvent) {
-    el.fireEvent('on' + etype);
-  } else {
-    var evObj = document.createEvent('Events');
-    evObj.initEvent(etype, true, false);
-    el.dispatchEvent(evObj);
-  }
-}
 
 
 function pushWordToGame(strWord)
@@ -400,38 +270,6 @@ function findWordsOnBoard()
 
 
 
-//
-// Installs a mutation observer callback for nodes matching the given css selector
-//
-function registerMutationObserver(selectorCriteria, monitorSubtree, callbackFunction)
-{
-    // Cross browser mutation observer support
-    var MutationObserver = window.MutationObserver || window.WebKitMutationObserver || window.MozMutationObserver;
-
-    // Find the requested DOM nodes
-    var targetNodeList = document.querySelectorAll(selectorCriteria);
-
-
-    // Make sure the required elements were found, otherwise don't install the observer
-    if ((targetNodeList != null) && (MutationObserver != null)) {
-
-        // Create an observer and callback
-        var observer = new MutationObserver( callbackFunction );
-
-        // Start observing the target element(s)
-        for(var i = 0; i < targetNodeList.length; ++i) {
-
-            observer.observe(targetNodeList[i], {
-                attributes: true,
-                childList: true,
-                characterData: true,
-                subtree: monitorSubtree,
-                characterDataOldValue: true
-            });
-        }
-    }
-}
-
 
 //
 // Locate the element which displays the board settings and extract them from it
@@ -636,30 +474,6 @@ function appendLink(linkText, linkColor, appendAfterNode, linkFunction)
 
 
 
-function testCreateHeatMapLinks()
-{
-    appendLink('HM: Used Tiles', 'grey',
-               document.getElementById('problems_link'),
-               function () {
-                   heatMapDrawUsedTiles();
-                   return(false); }
-              );
-
-    appendLink('HM: Start Tiles', 'grey',
-               document.getElementById('problems_link'),
-               function () {
-                   heatMapDrawStartTiles();
-                   return(false); }
-              );
-
-    appendLink('HM: End Tiles', 'grey',
-               document.getElementById('problems_link'),
-               function () {
-                   heatMapDrawEndTiles();
-                   return(false); }
-              );
-}
-
 
 
 var boardArraySize = 10;
@@ -667,13 +481,6 @@ var boardTiles     = [];
 var boardTileUsed  = [];
 var boardWidth     = -1;
 var boardHeight    = -1;
-
-var boardTileStatWordUsedCount  = [];
-var boardTileStatStartWordCount = [];
-var boardTileStatEndWordCount   = [];
-var boardTileStatWordUsedCountMaxVal;
-var boardTileStatStartWordCountMaxVal;
-var boardTileStatEndWordCountMaxVal;
 
 var wordMinLength  = 4;
 var maxWordLen     = 20;
@@ -693,7 +500,7 @@ var isIntermission          = null;
 
 var isEnabled               = false;
 
-testCreateHeatMapLinks();
+CreateHeatMapLinks();
 
 installBoardUpdateHook();
 
