@@ -14,6 +14,12 @@ var boardTiles     = [];   // Stores the letter used for each tile on the board
 var boardWidth     = -1;   // Record keeping for how large the current board is (width & height)
 var boardHeight    = -1;
 
+var boardNeedsUpdate        = true; // TODO : remove?
+var continueSendingWords    = false;
+var roomIsInitialized       = false;
+var isIntermissionLastState = null;
+var isIntermission          = null;
+var isEnabled               = false;
 
 
 //
@@ -38,7 +44,7 @@ function initBoardArray()
 
 
 //
-// ================= SIMULATED GAMEPLAY =================
+// ================= SIMULATED GAMEPLAY AND CONTROL =================
 //
 
 
@@ -213,6 +219,7 @@ console.debug('no board');
 //
 
 
+// OPTIONAL : rename to Room Settings?
 //
 // Attempts to extract game/board settings from the game UI
 //
