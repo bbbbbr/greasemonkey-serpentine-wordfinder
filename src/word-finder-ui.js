@@ -29,7 +29,7 @@ function toggleSending()
     else
         startSendingWords();
 
-   return (false);
+   return (false); // for onClick return handling
 }
 
 
@@ -47,7 +47,7 @@ function toggleEnabled()
     else
         setStatusItemState('statusEnabled','init');
 
-    return (false);
+    return (false); // for onClick return handling
 }
 
 
@@ -58,9 +58,19 @@ function toggleEnabled()
 
 
 //
-// Creates the (main) word-finder status area/UI
+// Initializes the UI elements
 //
-function appendMainStatusArea() //linkText, linkColor, appendAfterNode, linkFunction)
+function initUI()
+{
+    initHeatMapArea();
+    initStatusArea();
+}
+
+
+//
+// Creates the main word-finder status area/UI
+//
+function appendMainStatusArea()
 {
     var appendNode = document.getElementById('room_header');
 
@@ -80,24 +90,64 @@ function initStatusArea()
 {
     appendMainStatusArea();
 
-    appendStatusItem('statusEnabled','Enabled', toggleEnabled);
+    appendStatusItem('wordFinderStatusArea', 'statusEnabled','Enabled', toggleEnabled);
     setStatusItemState('statusEnabled','init');
 
-    appendStatusItem('statusRoom','Room', null);
+    appendStatusItem('wordFinderStatusArea', 'statusRoom','Room', null);
     setStatusItemState('statusRoom','init');
 
-    appendStatusItem('statusDict','Dict', null);
+    appendStatusItem('wordFinderStatusArea', 'statusDict','Dict', null);
     setStatusItemState('statusDict','init');
 
-    appendStatusItem('statusBoard','Board', null);
+    appendStatusItem('wordFinderStatusArea', 'statusBoard','Board', null);
     setStatusItemState('statusBoard','init');
 
-    appendStatusItem('statusWords','Words', null);
+    appendStatusItem('wordFinderStatusArea', 'statusWords','Words', null);
     setStatusItemState('statusWords','init');
 
-    appendStatusItem('statusSendWords','Send', toggleSending);
+    appendStatusItem('wordFinderStatusArea', 'statusSendWords','Send', toggleSending);
     setStatusItemState('statusSendWords','init');
 }
+
+
+//
+// Creates the heat map button area
+//
+function appendHeapMapArea()
+{
+    var appendNode = document.getElementById('room_header');
+
+    if (appendNode)
+    {
+        var elSpan = document.createElement('span');
+        elSpan.setAttribute("id", "wordFinderHeatMapArea");
+        elSpan.style.cssFloat = "right";
+        appendNode.appendChild(elSpan);
+    }
+}
+
+
+//
+// Creates buttons for toggling the found-word heatmaps
+//
+function initHeatMapArea()
+{
+    appendHeapMapArea();
+
+    // Heat Map buttons
+    appendStatusItem('wordFinderHeatMapArea', 'heatmapLabel','HeatMap :', null);
+    setStatusItemState('heatmapLabel','success');
+
+    appendStatusItem('heatmapLabel', 'heatmapUsedTiles', 'Used',  heatMapDrawUsedTiles);
+    setStatusItemState('heatmapUsedTiles','success');
+
+    appendStatusItem('heatmapLabel', 'heatmapStartTiles','Start', heatMapDrawStartTiles);
+    setStatusItemState('heatmapStartTiles','success');
+
+    appendStatusItem('heatmapLabel', 'heatmapEndTiles',  'End',   heatMapDrawEndTiles);
+    setStatusItemState('heatmapEndTiles','success');
+}
+
 
 
 //
@@ -131,9 +181,9 @@ function appendLink(linkText, linkColor, appendAfterNode, linkFunction)
 //
 // Adds a text or anchor link item to the word-finder status area/UI
 //
-function appendStatusItem(itemID, itemText, itemFunction)
+function appendStatusItem(parentID, itemID, itemText, itemFunction)
 {
-    var appendAfterNode = document.getElementById('wordFinderStatusArea');
+    var appendAfterNode = document.getElementById(parentID);
 
     if (appendAfterNode)
     {

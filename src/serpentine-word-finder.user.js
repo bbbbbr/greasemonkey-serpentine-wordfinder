@@ -7,7 +7,7 @@
 // @include     https://*.serpentinegame.com/*
 // @include     https://serpentinegame.com/*
 // @grant       GM_getResourceText
-// @version     0.4.0
+// @version     0.5.0
 // @license     GPL
 // @require     dom-utils.js
 // @require     word-finder-game-mechanics.js
@@ -26,10 +26,10 @@
   * Comments
   * Global vars
 
-* Convert heatmap buttons
 * Auto adjust send delay based on number of words found and total time available
 
 * OPTIONAL : monitor chat area for commands (enable/disable/set-speed)
+* OPTIONAL : Indicate number of words found in UI?
 */
 
 
@@ -54,8 +54,7 @@ initWordFinder();
 //
 function initWordFinder()
 {
-    CreateHeatMapLinks(); // TODO : convert and move into initStatusArea
-    initStatusArea();
+    initUI();
 
     installBoardUpdateHook();  // TODO : move into initRoom()?
     installRoomInitHook();

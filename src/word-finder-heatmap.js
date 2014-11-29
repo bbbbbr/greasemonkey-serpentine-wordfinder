@@ -21,41 +21,6 @@ var boardTileStatStartWordCountMaxVal;
 var boardTileStatEndWordCountMaxVal;
 
 
-
-//
-// ================= UI =================
-//
-
-
-//
-// Creates buttns in the UI for displaying the various heat maps
-//
-function CreateHeatMapLinks()
-{
-    appendLink('HM: Used Tiles', 'grey',
-               document.getElementById('problems_link'),
-               function () {
-                   heatMapDrawUsedTiles();
-                   return(false); }
-              );
-
-    appendLink('HM: Start Tiles', 'grey',
-               document.getElementById('problems_link'),
-               function () {
-                   heatMapDrawStartTiles();
-                   return(false); }
-              );
-
-    appendLink('HM: End Tiles', 'grey',
-               document.getElementById('problems_link'),
-               function () {
-                   heatMapDrawEndTiles();
-                   return(false); }
-              );
-}
-
-
-
 //
 // ================= INIT AND DATA LOGGING =================
 //
@@ -145,6 +110,8 @@ function heatMapIncrementUsedTiles(wordLength)
 function heatMapDrawUsedTiles()
 {
     heatMapDrawToBoard(boardTileStatWordUsedCount, boardTileStatWordUsedCountMaxVal);
+
+    return (false); // for onClick return handling
 }
 
 
@@ -154,6 +121,8 @@ function heatMapDrawUsedTiles()
 function heatMapDrawStartTiles()
 {
     heatMapDrawToBoard(boardTileStatStartWordCount, boardTileStatStartWordCountMaxVal);
+
+    return (false); // for onClick return handling
 }
 
 
@@ -163,6 +132,8 @@ function heatMapDrawStartTiles()
 function heatMapDrawEndTiles()
 {
     heatMapDrawToBoard(boardTileStatEndWordCount, boardTileStatEndWordCountMaxVal);
+
+    return (false); // for onClick return handling
 }
 
 
