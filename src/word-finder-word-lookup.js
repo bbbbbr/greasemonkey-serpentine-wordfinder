@@ -201,6 +201,25 @@ function checkBoardTile(cx, cy, wordTreeNode, wordLen, strWorkString)
 }
 
 
+// TODO : pass in params instead of globals?
+//
+// Logs the list and number of found words to the debug console
+//
+function debugLogFoundWords()
+{
+    for (var wordEntry in foundWords)
+    {
+        // use hasOwnProperty to filter out keys from the Object.prototype
+        if (foundWords.hasOwnProperty( wordEntry ))
+        {
+            console.debug(wordEntry);
+        }
+    }
+
+    console.debug("Found Words : " + foundWordCount.toString() );
+}
+
+
 //
 // Scans each tile on the board for words
 // * extractBoardToArray() must be called first
@@ -226,14 +245,7 @@ function findWordsOnBoard()
         }
     }
 
-    // DEBUG : dump list of words
-    for (var wordEntry in foundWords) {
-        // use hasOwnProperty to filter out keys from the Object.prototype
-        if (foundWords.hasOwnProperty( wordEntry )) {
-            console.debug(wordEntry);
-        }
-    }
-    console.debug("Found Words : " + foundWordCount.toString() );
+    debugLogFoundWords();
 
     if (foundWordCount > 0)
     {
