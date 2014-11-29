@@ -11,6 +11,7 @@
 // @license     GPL
 // @require     dom-utils.js
 // @require     word-finder-game-mechanics.js
+// @require     word-finder-game-board.js
 // @require     word-finder-heatmap.js
 // @require     word-finder-word-lookup.js
 // @require     word-finder-ui.js
@@ -33,16 +34,22 @@
 
 
 // Settings
-var boardArraySize = 10;
-var wordMinLength  = 4;
-var maxWordLen     = 20;
-var msWaitBetweenWordSendsToGame = 500;// 125 for bot table; // 500; // Half sec average time between sending to game
+var boardArraySize               = 10;
+var wordMinLength                = 4;
+var maxWordLen                   = 20;
+var msWaitBetweenWordSendsToGame = 500; // 500 = Half sec average time between sending to game // 125; for bot table?
+
+// Main status
+var roomIsInitialized       = false;
 
 
+// Start up the script
 initWordFinder();
 
+
+
 //
-// Start up the script
+// Script main()
 // * Called on script startup
 //
 function initWordFinder()
