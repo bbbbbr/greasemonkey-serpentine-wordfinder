@@ -164,7 +164,10 @@ function heatMapDrawToBoard(tileStatArray, maxVal)
             }
 
             // Update the tile color - must use setProperty instead of .style.backgroundColor in order to use CSS !imporant color override
-            document.querySelector("#board_" + x.toString() + "_" + y.toString()).style.setProperty("background-color", tempColor, "important");
+            var elBoardTile = document.querySelector("#board_" + x.toString() + "_" + y.toString() );
+
+            if (elBoardTile != null)
+                elBoardTile.style.setProperty("background-color", tempColor, "important");
         }
     }
 }
