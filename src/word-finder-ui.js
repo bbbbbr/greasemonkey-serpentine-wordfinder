@@ -43,7 +43,7 @@ function toggleEnabled()
     isEnabled = !isEnabled;
 
     if (isEnabled)
-        setStatusItemState('statusEnabled','success');
+        setStatusItemState('statusEnabled','enabled');
     else
         setStatusItemState('statusEnabled','init');
 
@@ -222,6 +222,12 @@ function setStatusItemState(itemID, itemStatus)
             elItem.style.color           = "darkgrey";
             elItem.style.borderColor     = "transparent";
             elItem.style.backgroundColor = "transparent";
+        }
+        else if (itemStatus == "enabled")
+        {
+            elItem.style.color           = "white";
+            elItem.style.borderColor     = "#00E068";
+            elItem.style.backgroundColor = "#00E068";
         }
     }
 }

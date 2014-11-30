@@ -108,7 +108,7 @@ function sendWordListOnTimer(msWaitTime)
 //
 function startSendingWords()
 {
-    setStatusItemState('statusSendWords','success');
+    setStatusItemState('statusSendWords','enabled');
     continueSendingWords = true;
     sendWordListOnTimer(msWaitBetweenWordSendsToGame);
 }
