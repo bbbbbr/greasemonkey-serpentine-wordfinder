@@ -27,9 +27,20 @@ var isEnabled               = false;
 //
 function pushWordToGame(strWord)
 {
-    // TODO : check querySelector values for NULL and signal failure if needed, then bubble up and don't delete word if failed
-    document.querySelector("#word").value = strWord;
-    eventFire( document.querySelector("#word_send") ,'click');
+    var elWordTextEntry  = document.querySelector("#word");
+    var elWordSendButton = document.querySelector("#word_send");
+
+    if ((elWordTextEntry != null) && (elWordSendButton != null))
+    {
+        elWordTextEntry.value = strWord;
+        eventFire( elWordSendButton,'click' );
+
+        return (true); // Word sent successfully
+    }
+    else
+    {
+        return (false); // Signal failure to send
+    }
 }
 
 
@@ -48,20 +59,18 @@ function sendItemFromFoundWords()
             if (foundWords[wordEntry] == true)
             {
                 // Send the word to the game
-                pushWordToGame(wordEntry);
+                if ( pushWordToGame(wordEntry) )
+                {
+                    // Remove the item from the list if it was sent successfully
+                    // delete foundWords[wordentry];  // This crashes
+                    // delete foundWords.wordEntry;   // This doesn't appear to remove it from the list as far as the test methods above are concerned
+                    // TODO : fix deletion here that wasn't working
+                    // Workaround :
+                    foundWords[wordEntry] = false; // Flag as "sent"
 
-    // alert("deleting word : " + wordEntry);
-
-                // Remove the item from the list
-                // delete foundWords[wordentry];  // This crashes
-                // delete foundWords.wordEntry;   // This doesn't appear to remove it from the list as far as the test methods above are concerned
-                // TODO : fix deletion here that wasn't working
-                // Workaround :
-                foundWords[wordEntry] = false; // Flag as "sent"
-
-
-                // Indicate success, a word was found and sent
-                return(true);
+                    // Indicate success, a word was found and sent
+                    return(true);
+                }
             }
         }
     }
