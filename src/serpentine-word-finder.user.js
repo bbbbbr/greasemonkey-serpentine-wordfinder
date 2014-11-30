@@ -7,7 +7,7 @@
 // @include     https://*.serpentinegame.com/*
 // @include     https://serpentinegame.com/*
 // @grant       GM_getResourceText
-// @version     0.5.0
+// @version     1.0.0
 // @license     GPL
 // @require     dom-utils.js
 // @require     word-finder-game-mechanics.js
@@ -22,14 +22,11 @@
 /* TODO
 
 * Cleanup
-  * Organization
-  * Comments
   * Global vars
 
-* Auto adjust send delay based on number of words found and total time available
-
+* OPTIONAL : Auto adjust send delay based on number of words found and total time available
 * OPTIONAL : monitor chat area for commands (enable/disable/set-speed)
-* OPTIONAL : Indicate number of words found in UI?
+* OPTIONAL : Indicate number of words found in UI
 */
 
 
