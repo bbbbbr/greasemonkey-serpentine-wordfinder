@@ -120,16 +120,19 @@ function extractBoardSettings()
     // The #words div element is the parent to the div which has the settings (which lacks an id)
     var wordsEl = document.getElementById('words');
 
-    if (wordsEl) {
+    if (wordsEl)
+    {
         // [0] = full match text, [1] Minimum number of letters
         // OPTIONAL : var boardSettingsMatch = /.*Board Size: (\d+).*Minimum Letters: (\d+).*/mi.exec( wordsEl.innerHTML );
         // Don't extract the board size right now since it's determined automatically when extracting the board tiles
         var boardSettingsMatch = /.*Minimum Letters: (\d+).*/mi.exec( wordsEl.innerHTML );
 
-        if (boardSettingsMatch != null) {
+        if (boardSettingsMatch != null)
+        {
             wordMinLength = parseInt(boardSettingsMatch[1]);
             console.debug('Found Min Word Size : ' + wordMinLength.toString());
-            return (true); // TODO : utilize return code
+
+            return (true);
         }
     }
 
