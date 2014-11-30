@@ -56,7 +56,6 @@ function initWordFinder()
 {
     initUI();
 
-    installBoardUpdateHook();  // TODO : move into initRoom()?
     installRoomInitHook();
 }
 
@@ -101,6 +100,9 @@ function initRoom()
 
             // Signal successful init of room
             roomIsInitialized = true;
+
+            // Start monitoring the board for updates
+            installBoardUpdateHook();
             return (true);
         }
         else
